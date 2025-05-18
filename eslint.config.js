@@ -1,0 +1,30 @@
+import baseConfig from "../../eslint.config.js";
+
+/** @typedef {import("eslint").Linter.Config} */
+let FlatConfig;
+
+/** @type {FlatConfig} */
+const ignoresConfig = {
+  ignores: ["build"],
+};
+
+/** @type {FlatConfig[]} */
+const overridesConfigs = [
+  {
+    files: ["src/db/migrations/**/*.ts"],
+    rules: {
+      "unicorn/filename-case": ["off"],
+    },
+  },
+  {
+    files: ["src/libs/modules/controller/base-controller.module.ts"],
+    rules: {
+      "@typescript-eslint/no-magic-numbers": ["off"],
+    },
+  },
+];
+
+/** @type {FlatConfig[]} */
+const config = [...baseConfig, ignoresConfig, ...overridesConfigs];
+
+export default config;

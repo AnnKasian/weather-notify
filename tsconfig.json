@@ -1,0 +1,25 @@
+{
+  "include": ["src/**/*", "ormconfig.ts", "database.config.js"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "outDir": "./dist",
+    "incremental": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  }
+}
