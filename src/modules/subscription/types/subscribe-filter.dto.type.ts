@@ -3,4 +3,4 @@ type SubscribeFilterDto = {
   token?: string;
 };
 
-export type { SubscribeFilterDto };
+export { type SubscribeFilterDto };

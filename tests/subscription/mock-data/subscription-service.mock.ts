@@ -1,13 +1,13 @@
-import { Frequency } from "../../src/modules/subscription/enums/frequency.enum";
+import { Frequency } from "../../../src/modules/subscription/enums/frequency.enum.js";
 
 const subscriptionMock = {
-  responcefromRepository: {
+  responsefromRepository: {
     emailExist: {
       id: "123e4567-e89b-12d3-a456-555555555",
       email: "exist@example.com",
       token: "123e4567-e89b-12d3-a456-555555555",
       city: "Kyiv",
-      frequency: Frequency.Hourly,
+      frequency: Frequency.HOURLY,
       confirmed: false,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -17,7 +17,7 @@ const subscriptionMock = {
       email: "existandconfirm@example.com",
       token: "123e4567-e89b-12d3-a456-88888888",
       city: "Kyiv",
-      frequency: Frequency.Hourly,
+      frequency: Frequency.HOURLY,
       confirmed: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -27,7 +27,7 @@ const subscriptionMock = {
       email: "new@example.com",
       token: "123e4567-e89b-12d3-a456-99999999",
       city: "Kyiv",
-      frequency: Frequency.Hourly,
+      frequency: Frequency.HOURLY,
       confirmed: false,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -38,17 +38,17 @@ const subscriptionMock = {
     emailExist: {
       email: "exist@example.com",
       city: "Kyiv",
-      frequency: Frequency.Hourly,
+      frequency: Frequency.HOURLY,
     },
     emailExistAndConfirmed: {
       email: "existandconfirm@example.com",
       city: "Kyiv",
-      frequency: Frequency.Hourly,
+      frequency: Frequency.HOURLY,
     },
     emailNotExist: {
       email: "new@example.com",
       city: "Kyiv",
-      frequency: Frequency.Hourly,
+      frequency: Frequency.HOURLY,
     },
     tokenConfirm: {
       token: "123e4567-e89b-12d3-a456-88888888",

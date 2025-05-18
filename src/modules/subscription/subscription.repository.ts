@@ -39,7 +39,7 @@ class SubscriptionRepository {
     });
   }
 
-  public async find({
+  public find({
     email,
     token,
   }: SubscribeFilterDto): Promise<SubscriptionEntity | null> {

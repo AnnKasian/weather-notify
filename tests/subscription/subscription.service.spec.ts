@@ -1,9 +1,12 @@
 import { Test } from "@nestjs/testing";
-import { SubscriptionService } from "../src/modules/subscription/subscription.js";
+import { SubscriptionService } from "../../src/modules/subscription/subscription.js";
 import { subscriptionMock } from "./mock-data/mock-data.js";
-import { SubscriptionRepository } from "../src/modules/subscription/subscription.repository.js";
+import { SubscriptionRepository } from "../../src/modules/subscription/subscription.repository.js";
 import { ConflictException, NotFoundException } from "@nestjs/common";
-import { Frequency } from "../src/modules/subscription/enums/enums.js";
+import { Frequency } from "../../src/modules/subscription/enums/enums.js";
+import { ConfigService } from "@nestjs/config";
+import { MailerService } from "@nestjs-modules/mailer";
+import { WeatherService } from "../../src/modules/weather/weather.service.js";
 
 describe("SubscriptionService", () => {
   let subscriptionService: SubscriptionService;
@@ -15,12 +18,16 @@ describe("SubscriptionService", () => {
     delete: jest.fn(),
   };
 
-  const mockEmailSender = {
-    sendConfirmationEmail: jest.fn(),
+  const mockWeatherService = {
+    get: jest.fn(),
   };
 
-  const mockTokenFinder = {
-    findToken: jest.fn(),
+  const mockConfigService = {
+    get: jest.fn(),
+  };
+
+  const mockMailerService = {
+    sendMail: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -31,11 +38,20 @@ describe("SubscriptionService", () => {
           provide: SubscriptionRepository,
           useValue: mockSubscriptionRepository,
         },
+        {
+          provide: WeatherService,
+          useValue: mockWeatherService,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
+        {
+          provide: MailerService,
+          useValue: mockMailerService,
+        },
       ],
-    })
-      .useMocker(() => mockEmailSender)
-      .useMocker(() => mockTokenFinder)
-      .compile();
+    }).compile();
 
     subscriptionService = moduleRef.get(SubscriptionService);
   });
@@ -48,7 +64,7 @@ describe("SubscriptionService", () => {
     test("should create subscription, send email, and return token", async () => {
       mockSubscriptionRepository.find.mockResolvedValue(null);
       mockSubscriptionRepository.create.mockResolvedValue(
-        subscriptionMock.responcefromRepository.emailNotExist
+        subscriptionMock.responsefromRepository.emailNotExist
       );
 
       jest
@@ -60,7 +76,7 @@ describe("SubscriptionService", () => {
       );
 
       expect(subscriptionService["sendConfirmationEmail"]).toHaveBeenCalledWith(
-        subscriptionMock.responcefromRepository.emailNotExist
+        subscriptionMock.responsefromRepository.emailNotExist
       );
 
       expect(result).toEqual(subscriptionMock.response.emailNotExist);
@@ -68,7 +84,7 @@ describe("SubscriptionService", () => {
 
     test("should send email again, and return token", async () => {
       mockSubscriptionRepository.find.mockResolvedValue(
-        subscriptionMock.responcefromRepository.emailExist
+        subscriptionMock.responsefromRepository.emailExist
       );
 
       jest
@@ -80,7 +96,7 @@ describe("SubscriptionService", () => {
       );
 
       expect(subscriptionService["sendConfirmationEmail"]).toHaveBeenCalledWith(
-        subscriptionMock.responcefromRepository.emailExist
+        subscriptionMock.responsefromRepository.emailExist
       );
 
       expect(result).toEqual(subscriptionMock.response.emailExist);
@@ -88,7 +104,7 @@ describe("SubscriptionService", () => {
 
     test("should throw ConflictException if email is already confirmed", async () => {
       mockSubscriptionRepository.find.mockResolvedValue(
-        subscriptionMock.responcefromRepository.emailExistAndConfirmed
+        subscriptionMock.responsefromRepository.emailExistAndConfirmed
       );
 
       await expect(
@@ -101,41 +117,39 @@ describe("SubscriptionService", () => {
 
   describe("confirm", () => {
     test("should confirm subscription and return void", async () => {
-      const findToken = jest
-        .spyOn(subscriptionService as any, "findToken")
-        .mockResolvedValue(subscriptionMock.responcefromRepository.emailExist);
-
-      await subscriptionService.confirm(
-        subscriptionMock.responcefromRepository.emailExist.token
+      mockSubscriptionRepository.find.mockResolvedValue(
+        subscriptionMock.responsefromRepository.emailExist
       );
 
-      expect(findToken).toHaveBeenCalledWith({
-        token: subscriptionMock.responcefromRepository.emailExist.token,
+      await subscriptionService.confirm(
+        subscriptionMock.responsefromRepository.emailExist.token
+      );
+
+      expect(mockSubscriptionRepository.find).toHaveBeenCalledWith({
+        token: subscriptionMock.responsefromRepository.emailExist.token,
       });
     });
 
     test("should throw NotFoundException if token not found", async () => {
-      jest
-        .spyOn(subscriptionService as any, "findToken")
-        .mockRejectedValue(new NotFoundException("Token not found"));
+      mockSubscriptionRepository.find.mockRejectedValue(
+        new NotFoundException("Token not found")
+      );
 
       await expect(
         subscriptionService.confirm(
-          subscriptionMock.responcefromRepository.emailNotExist.token
+          subscriptionMock.responsefromRepository.emailNotExist.token
         )
       ).rejects.toThrow(NotFoundException);
     });
 
     test("should throw ConflictException if email is already confirmed", async () => {
-      jest
-        .spyOn(subscriptionService as any, "findToken")
-        .mockResolvedValue(
-          subscriptionMock.responcefromRepository.emailExistAndConfirmed
-        );
+      mockSubscriptionRepository.find.mockResolvedValue(
+        subscriptionMock.responsefromRepository.emailExistAndConfirmed
+      );
 
       await expect(
         subscriptionService.confirm(
-          subscriptionMock.responcefromRepository.emailExistAndConfirmed.token
+          subscriptionMock.responsefromRepository.emailExistAndConfirmed.token
         )
       ).rejects.toThrow(ConflictException);
     });
@@ -143,27 +157,27 @@ describe("SubscriptionService", () => {
 
   describe("unsubscribe", () => {
     test("should unsubscribe and return void", async () => {
-      const findToken = jest
-        .spyOn(subscriptionService as any, "findToken")
-        .mockResolvedValue(subscriptionMock.responcefromRepository.emailExist);
-
-      await subscriptionService.unsubscribe(
-        subscriptionMock.responcefromRepository.emailExist.token
+      mockSubscriptionRepository.find.mockResolvedValue(
+        subscriptionMock.responsefromRepository.emailExist
       );
 
-      expect(findToken).toHaveBeenCalledWith({
-        token: subscriptionMock.responcefromRepository.emailExist.token,
+      await subscriptionService.unsubscribe(
+        subscriptionMock.responsefromRepository.emailExist.token
+      );
+
+      expect(mockSubscriptionRepository.find).toHaveBeenCalledWith({
+        token: subscriptionMock.responsefromRepository.emailExist.token,
       });
     });
 
     test("should throw NotFoundException if token not found", async () => {
-      jest
-        .spyOn(subscriptionService as any, "findToken")
-        .mockRejectedValue(new NotFoundException("Token not found"));
+      mockSubscriptionRepository.find.mockRejectedValue(
+        new NotFoundException("Token not found")
+      );
 
       await expect(
         subscriptionService.unsubscribe(
-          subscriptionMock.responcefromRepository.emailNotExist.token
+          subscriptionMock.responsefromRepository.emailNotExist.token
         )
       ).rejects.toThrow(NotFoundException);
     });
@@ -177,7 +191,7 @@ describe("SubscriptionService", () => {
 
       await subscriptionService.sendHourlyEmails();
 
-      expect(frequencyEmails).toHaveBeenCalledWith(Frequency.Hourly);
+      expect(frequencyEmails).toHaveBeenCalledWith(Frequency.HOURLY);
     });
   });
 
@@ -189,7 +203,7 @@ describe("SubscriptionService", () => {
 
       await subscriptionService.sendDailyEmails();
 
-      expect(spy).toHaveBeenCalledWith(Frequency.Daily);
+      expect(spy).toHaveBeenCalledWith(Frequency.DAILY);
     });
   });
 });

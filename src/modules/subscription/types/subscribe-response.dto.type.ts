@@ -2,4 +2,4 @@ type SubscribeResponseDto = {
   token: string;
 };
 
-export type { SubscribeResponseDto };
+export { type SubscribeResponseDto };

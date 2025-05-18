@@ -8,4 +8,4 @@ type WeatherApiResponseDto = {
   };
 };
 
-export type { WeatherApiResponseDto };
+export { type WeatherApiResponseDto };

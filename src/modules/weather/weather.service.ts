@@ -10,7 +10,7 @@ class WeatherService {
     try {
       return await this.weatherRepository.get(city);
     } catch {
-      throw new NotFoundException(`City not found`);
+      throw new NotFoundException("City not found");
     }
   }
 }

@@ -19,7 +19,7 @@ import { ConfigService } from "@nestjs/config";
 @Injectable()
 class SubscriptionService {
   public constructor(
-    private subscriptionRepository: SubscriptionRepository,
+    private readonly subscriptionRepository: SubscriptionRepository,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
     private readonly weatherService: WeatherService
@@ -37,12 +37,12 @@ class SubscriptionService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   public async sendHourlyEmails(): Promise<void> {
-    await this.sendFrequencyEmails(Frequency.Hourly);
+    await this.sendFrequencyEmails(Frequency.HOURLY);
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_10AM)
   public async sendDailyEmails(): Promise<void> {
-    await this.sendFrequencyEmails(Frequency.Daily);
+    await this.sendFrequencyEmails(Frequency.DAILY);
   }
 
   private async sendWeatherEmail(
@@ -67,7 +67,7 @@ class SubscriptionService {
   }
 
   private async sendConfirmationEmail(subscription: SubscriptionEntity) {
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: subscription.email,
       subject: "Confirmation email",
       template: "confirm",
