@@ -1,5 +1,11 @@
 {
-  "include": ["src/**/*", "ormconfig.ts", "database.config.js"],
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "ormconfig.ts",
+    "database.config.js",
+    "jest.config.ts"
+  ],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "strict": true,
@@ -10,6 +16,9 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noUnusedParameters": true,
     "noUnusedLocals": true,
     "target": "ES2021",
     "sourceMap": true,
