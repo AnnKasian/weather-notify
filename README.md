@@ -7,12 +7,14 @@ for their cities and receive notifications via email.
 
 ## Steps to run
 
-Build and run docker container:
-`docker-compose up`
+1. Create and fill `.env` file using `.env.example` as a reference.
+
+2. Build and run docker container: `docker-compose up`
 
 ## Deployment
 
-The application is deployed and available at: **[https://weather-notify-idch.onrender.com/](https://weather-notify-idch.onrender.com/)**
+The application is deployed and available at: **[https://weather-notify-idch.onrender.com/](https://weather-notify-idch.onrender.com/)** <br>
+<i>(First loading may take a while due to inactivity)</i>
 
 ### API Documentation
 
@@ -36,25 +38,6 @@ The service sends:
 
 - Confirmation emails when users subscribe
 - Regular weather notifications based on subscription frequency (hourly/daily)
-
-### Error Codes
-
-The API returns standard HTTP status codes:
-
-**Success:**
-
-- `200` - OK
-
-**Client Errors:**
-
-- `400` - Bad Request
-- `404` - Not Found
-- `409` - Conflict (email or tokenal ready exists)
-
-**Server Errors:**
-
-- `500` - Internal Server Error
-- `503` - Service Unavailable
 
 ## Technologies
 
