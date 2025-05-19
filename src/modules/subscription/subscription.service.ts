@@ -43,7 +43,7 @@ class SubscriptionService {
     );
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_HOUR)
   public async sendHourlyEmails(): Promise<void> {
     await this.sendFrequencyEmails(Frequency.HOURLY);
   }
