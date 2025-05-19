@@ -30,8 +30,16 @@ class SubscriptionService {
       frequency
     );
 
+    const cities: Record<string, SubscriptionEntity[]> = {};
+    subscriptions.forEach((subscription) => {
+      cities[subscription.city] ??= [];
+      cities[subscription.city].push(subscription);
+    });
+
     await Promise.all(
-      subscriptions.map((subscription) => this.sendWeatherEmail(subscription))
+      Object.entries(cities).map(([city, subscriptions]) =>
+        this.sendWeatherEmail(city, subscriptions)
+      )
     );
   }
 
@@ -46,24 +54,29 @@ class SubscriptionService {
   }
 
   private async sendWeatherEmail(
-    subscription: SubscriptionEntity
+    city: string,
+    subscriptions: SubscriptionEntity[]
   ): Promise<void> {
-    const weather = await this.weatherService.get(subscription.city);
+    const weather = await this.weatherService.get(city);
 
-    await this.mailerService.sendMail({
-      to: subscription.email,
-      subject: "Weather subscription",
-      template: "weather-notify",
-      context: {
-        city: subscription.city,
-        temperature: weather.temperature,
-        humidity: weather.humidity,
-        description: weather.description,
-        unsubscribeUrl: `${this.configService.get(
-          "BASE_URL"
-        )}/action.html?action=unsubscribe&token=${subscription.token}`,
-      },
-    });
+    await Promise.all(
+      subscriptions.map((subscription) =>
+        this.mailerService.sendMail({
+          to: subscription.email,
+          subject: "Weather subscription",
+          template: "weather-notify",
+          context: {
+            city: subscription.city,
+            temperature: weather.temperature,
+            humidity: weather.humidity,
+            description: weather.description,
+            unsubscribeUrl: `${this.configService.get(
+              "BASE_URL"
+            )}/action.html?action=unsubscribe&token=${subscription.token}`,
+          },
+        })
+      )
+    );
   }
 
   private async sendConfirmationEmail(subscription: SubscriptionEntity) {

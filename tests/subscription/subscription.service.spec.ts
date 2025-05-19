@@ -7,6 +7,7 @@ import { Frequency } from "../../src/modules/subscription/enums/enums.js";
 import { ConfigService } from "@nestjs/config";
 import { MailerService } from "@nestjs-modules/mailer";
 import { WeatherService } from "../../src/modules/weather/weather.service.js";
+import { weatherMock } from "../weather/mock-data/mock-data.js";
 
 describe("SubscriptionService", () => {
   let subscriptionService: SubscriptionService;
@@ -16,6 +17,7 @@ describe("SubscriptionService", () => {
     create: jest.fn(),
     confirm: jest.fn(),
     delete: jest.fn(),
+    findByFrequency: jest.fn(),
   };
 
   const mockWeatherService = {
@@ -131,9 +133,7 @@ describe("SubscriptionService", () => {
     });
 
     test("should throw NotFoundException if token not found", async () => {
-      mockSubscriptionRepository.find.mockRejectedValue(
-        new NotFoundException("Token not found")
-      );
+      mockSubscriptionRepository.find.mockResolvedValue(null);
 
       await expect(
         subscriptionService.confirm(
@@ -171,9 +171,7 @@ describe("SubscriptionService", () => {
     });
 
     test("should throw NotFoundException if token not found", async () => {
-      mockSubscriptionRepository.find.mockRejectedValue(
-        new NotFoundException("Token not found")
-      );
+      mockSubscriptionRepository.find.mockResolvedValue(null);
 
       await expect(
         subscriptionService.unsubscribe(
@@ -204,6 +202,61 @@ describe("SubscriptionService", () => {
       await subscriptionService.sendDailyEmails();
 
       expect(spy).toHaveBeenCalledWith(Frequency.DAILY);
+    });
+  });
+
+  describe("sendFrequencyEmails", () => {
+    test("should find subscriptions and send weather emails", async () => {
+      jest
+        .spyOn(subscriptionService as any, "sendWeatherEmail")
+        .mockImplementation(async () => {});
+
+      mockSubscriptionRepository.findByFrequency.mockResolvedValue(
+        subscriptionMock.responsefromRepository.frequency
+      );
+
+      await subscriptionService["sendFrequencyEmails"](Frequency.HOURLY);
+
+      expect(mockSubscriptionRepository.findByFrequency).toHaveBeenCalledWith(
+        Frequency.HOURLY
+      );
+
+      expect(subscriptionService["sendWeatherEmail"]).toHaveBeenCalledTimes(2);
+      expect(subscriptionService["sendWeatherEmail"]).toHaveBeenCalledWith(
+        subscriptionMock.responsefromRepository.frequency[0].city,
+        [subscriptionMock.responsefromRepository.frequency[0]]
+      );
+      expect(subscriptionService["sendWeatherEmail"]).toHaveBeenCalledWith(
+        subscriptionMock.responsefromRepository.frequency[1].city,
+        subscriptionMock.responsefromRepository.frequency.slice(1, 3)
+      );
+    });
+  });
+
+  describe("sendWeatherEmail", () => {
+    test("should get weather and send weather email to each subscription", async () => {
+      mockWeatherService.get.mockResolvedValue(weatherMock.response);
+      mockMailerService.sendMail.mockImplementation(async () => {});
+
+      await subscriptionService["sendWeatherEmail"](
+        subscriptionMock.responsefromRepository.emailExistAndConfirmed.city,
+        subscriptionMock.responsefromRepository.frequency
+      );
+
+      expect(mockWeatherService.get).toHaveBeenCalledWith(
+        subscriptionMock.responsefromRepository.emailExistAndConfirmed.city
+      );
+
+      expect(mockMailerService.sendMail).toHaveBeenCalledTimes(3);
+
+      subscriptionMock.responsefromRepository.frequency.forEach(
+        (subscription) =>
+          expect(mockMailerService.sendMail).toHaveBeenCalledWith(
+            expect.objectContaining({
+              to: subscription.email,
+            })
+          )
+      );
     });
   });
 });

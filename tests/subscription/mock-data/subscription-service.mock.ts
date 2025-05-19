@@ -32,6 +32,38 @@ const subscriptionMock = {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+    frequency: [
+      {
+        id: "123e4567-e89b-12d3-a456-555555555",
+        email: "exist@example.com",
+        token: "123e4567-e89b-12d3-a456-555555555",
+        city: "Lviv",
+        frequency: Frequency.HOURLY,
+        confirmed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "123e4567-e89b-12d3-a456-88888888",
+        email: "existandconfirm@example.com",
+        token: "123e4567-e89b-12d3-a456-88888888",
+        city: "Kyiv",
+        frequency: Frequency.HOURLY,
+        confirmed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "123e4567-e89b-12d3-a456-99999999",
+        email: "new@example.com",
+        token: "123e4567-e89b-12d3-a456-99999999",
+        city: "Kyiv",
+        frequency: Frequency.HOURLY,
+        confirmed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ],
   },
 
   request: {
