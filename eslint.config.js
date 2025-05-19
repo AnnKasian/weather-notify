@@ -21,7 +21,7 @@ const filesConfig = {
 
 /** @type {FlatConfig} */
 const ignoresConfig = {
-  ignores: ["node_modules", "dist", "build", "apps", "packages"],
+  ignores: ["node_modules", "dist", "build", "apps", "packages", "public"],
 };
 
 /** @type {FlatConfig} */

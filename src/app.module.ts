@@ -7,6 +7,8 @@ import { databaseConfig } from "../database.config.js";
 import { SubscriptionModule } from "./modules/subscription/subscription.module.js";
 import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter.js";
 import { ScheduleModule } from "@nestjs/schedule";
+import { ServeStaticModule } from "@nestjs/serve-static";
+import path from "path";
 
 @Module({
   imports: [
@@ -14,6 +16,19 @@ import { ScheduleModule } from "@nestjs/schedule";
       isGlobal: true,
     }),
     TypeOrmModule.forRoot(databaseConfig),
+    ServeStaticModule.forRootAsync({
+      useFactory: (configService: ConfigService) => [
+        {
+          rootPath: path.join(import.meta.dirname, "..", "..", "public"),
+          serveRoot: configService.get("SERVE_ROOT"),
+          serveStaticOptions: {
+            index: "index.html",
+            extensions: ["html"],
+          },
+        },
+      ],
+      inject: [ConfigService],
+    }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

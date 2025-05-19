@@ -59,9 +59,9 @@ class SubscriptionService {
         temperature: weather.temperature,
         humidity: weather.humidity,
         description: weather.description,
-        unsubscribeUrl: `${this.configService.get("BASE_URL")}/unsubscribe/${
-          subscription.token
-        }`,
+        unsubscribeUrl: `${this.configService.get(
+          "BASE_URL"
+        )}/action.html?action=unsubscribe&token=${subscription.token}`,
       },
     });
   }
@@ -72,9 +72,9 @@ class SubscriptionService {
       subject: "Confirmation email",
       template: "confirm",
       context: {
-        confirmUrl: `${this.configService.get("BASE_URL")}/confirm/${
-          subscription.token
-        }`,
+        confirmUrl: `${this.configService.get(
+          "BASE_URL"
+        )}/action.html?action=confirm&token=${subscription.token}`,
       },
     });
   }
